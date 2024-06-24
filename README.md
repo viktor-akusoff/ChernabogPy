@@ -1,116 +1,115 @@
-## ChernabogPy: Визуализация гравитационных искажений черных дыр
+## ChernabogPy: Visualization of Gravitational Distortions by Black Holes
 
 [black-hole.webm](https://github.com/viktor-akusoff/ChernabogPy/assets/124511385/76787833-fdb5-43eb-a682-10830be4ce34)
 
-ChernabogPy - программа на Python, предназначенная для визуализации гравитационных искажений, вызываемых черными дырами, с использованием алгоритма нелинейной трассировки лучей. Программа позволяет исследовать эффекты искривления пространства-времени, описанные метриками Шварцшильда и Рейснера-Нордстрёма, и создавать реалистичные изображения черных дыр.
+ChernabogPy is a Python program designed to visualize gravitational distortions caused by black holes using a nonlinear ray tracing algorithm. The program allows you to explore the effects of spacetime curvature described by the Schwarzschild and Reissner-Nordström metrics and create realistic images of black holes.
 
-Эта программа была создана в рамках [магистерской диссертации](https://github.com/user-attachments/files/15948451/default.pdf).
+This program was created as part of a [master's thesis](https://github.com/user-attachments/files/15948451/default.pdf).
 
-### Возможности:
+### Features:
 
-* Трассировка лучей с учетом гравитационного поля черных дыр:
-    * Метрика Шварцшильда (невращающаяся, незаряженная черная дыра)
-    * Метрика Рейснера-Нордстрёма (невращающаяся, заряженная черная дыра)
-* Настройка параметров черной дыры (масса, заряд)
-* Настройка параметров сцены (камера, фон, объекты)
-* Поддержка различных текстур:
-    * Однотонные цвета
-    * Шахматные узоры
-    * Загрузка текстур из файлов изображений
-* Визуализация траекторий лучей в 3D
-* Сохранение результирующего изображения
+* Ray tracing considering the gravitational field of black holes:
+    * Schwarzschild metric (non-rotating, uncharged black hole)
+    * Reissner-Nordström metric (non-rotating, charged black hole)
+* Customization of black hole parameters (mass, charge)
+* Customization of scene parameters (camera, background, objects)
+* Support for various textures:
+    * Solid colors
+    * Checkerboard patterns
+    * Loading textures from image files
+* Visualization of ray trajectories in 3D
+* Saving the resulting image
 
-### Использование:
+### Usage:
 
+1. **Parameter Configuration:**
 
-1. **Настройка параметров:**
+   Open the `main.py` file and configure the following parameters:
 
-   Откройте файл `main.py` и настройте следующие параметры:
-
-   * **Разрешение изображения:**
-
-     ```python
-     w = 640  # Ширина изображения
-     h = 320  # Высота изображения
-     ```
-
-   * **Текстуры:**
+   * **Image Resolution:**
 
      ```python
-     black_hole_texture = CheckersTexture((0, 0, 0.9), (0.5, 0.5, 0), 15)  # Текстура черной дыры
-     background_texture = ImageTexture('img/space2.jpg')  # Текстура фона
-     ring_texture = CheckersTexture((0.9, 0, 0), (0, 0.5, 0.5), 20)  # Текстура кольца
+     w = 640  # Image width
+     h = 320  # Image height
      ```
 
-   * **Объекты сцены:**
+   * **Textures:**
 
      ```python
-     black_hole = Sphere(t([0, 0, 0]), 0.5)  # Черная дыра (позиция, радиус)
-     background = Sphere(t([0, 0, 0]), 9, inverse=True)  # Фон (позиция, радиус, инвертировать)
-     ring = FlatRing(t([0, 0, 0]), (0.5, 5), t([0, 0, 1]))  # Кольцо (позиция, (внутренний радиус, внешний радиус), нормаль)
+     black_hole_texture = CheckersTexture((0, 0, 0.9), (0.5, 0.5, 0), 15)  # Black hole texture
+     background_texture = ImageTexture('img/space2.jpg')  # Background texture
+     ring_texture = CheckersTexture((0.9, 0, 0), (0, 0.5, 0.5), 20)  # Ring texture
      ```
 
-   * **Камера:**
+   * **Scene Objects:**
+
+     ```python
+     black_hole = Sphere(t([0, 0, 0]), 0.5)  # Black hole (position, radius)
+     background = Sphere(t([0, 0, 0]), 9, inverse=True)  # Background (position, radius, invert)
+     ring = FlatRing(t([0, 0, 0]), (0.5, 5), t([0, 0, 1]))  # Ring (position, (inner radius, outer radius), normal)
+     ```
+
+   * **Camera:**
 
      ```python
      camera = Camera(t([-7, 0, 1.2]), t([0, 0, 0]), (w, h), 1, np.pi/3)
-     # Позиция, направление, разрешение, расстояние до экрана, угол обзора
+     # Position, direction, resolution, distance to screen, field of view
      ```
 
-   * **Стратегия трассировки лучей:**
+   * **Ray Tracing Strategy:**
 
      ```python
      raytracer = RayTracer(
          scene,
-         ReissnerNordstromRayTrace(1, 0.5),  # Выбор метрики (Шварцшильда или Рейснера-Нордстрёма)
-         eps=1e-3  # Точность трассировки
+         ReissnerNordstromRayTrace(1, 0.5),  # Choose metric (Schwarzschild or Reissner-Nordström)
+         eps=1e-3  # Tracing precision
      )
      ```
 
-2. **Запуск программы:**
+2. **Run the Program:**
 
-   Запустите файл `start.bat`, чтобы выполнить рендеринг сцены. Программа отобразит индикатор выполнения и сохранит результирующее изображение в файл `blackholeHD.png`.
+   Run the `start.bat` file to render the scene. The program will display a progress bar and save the resulting image to the `blackholeHD.png` file.
 
-### Примеры:
+### Examples:
 
-* **Линейная трассировка лучей:**
+* **Linear Ray Tracing:**
 
    ```python
    raytracer = RayTracer(scene, LinearRayTrace(), eps=1e-3)
    ```
 
-* **Трассировка лучей в метрике Шварцшильда:**
+* **Ray Tracing with the Schwarzschild Metric:**
 
    ```python
    raytracer = RayTracer(scene, SchwarzschildRayTrace(curvature=3), eps=1e-3)
    ```
 
-* **Трассировка лучей в метрике Рейснера-Нордстрёма:**
+* **Ray Tracing with the Reissner-Nordström Metric:**
 
    ```python
    raytracer = RayTracer(scene, ReissnerNordstromRayTrace(e=1.5, charge=0.5), eps=1e-3)
    ```
 
-### Дополнительные возможности:
+### Additional Features:
 
-* **Отображение 3D-графика точек пересечения лучей:**
+* **Display 3D Graph of Ray Intersection Points:**
 
    ```python
    raytracer.view_3d_rays_hits((-15, 15), (-15, 15), (-15, 15), 64, 32)
    ```
 
-* **Визуализация сцены в 3D:**
+* **Visualize the Scene in 3D:**
 
    ```python
    scene.view_3d_scene((-15, 15), (-15, 15), (-15, 15))
    ```
 
-### Замечания:
+### Notes:
 
-* Для ускорения рендеринга рекомендуется использовать GPU. Убедитесь, что у вас установлен PyTorch с поддержкой CUDA.
-* Настройка параметров сцены и трассировки лучей может потребовать некоторого экспериментального подбора.
-* Исходный код программы доступен в папке `chernabog`.
+* It is recommended to use a GPU for faster rendering. Make sure you have PyTorch installed with CUDA support.
+* Configuring scene parameters and ray tracing settings may require some experimental adjustments.
+* The program's source code is available in the `chernabog` folder.
 
-### Лицензия:
+### License:
 
 MIT License
