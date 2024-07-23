@@ -2,6 +2,8 @@
 
 [black-hole.webm](https://github.com/viktor-akusoff/ChernabogPy/assets/124511385/76787833-fdb5-43eb-a682-10830be4ce34)
 
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 ChernabogPy is a Python program designed to visualize gravitational lensing effects caused by black holes using a nonlinear ray tracing algorithm. The program allows you to explore the effects of spacetime curvature described by the Schwarzschild and Reissner-Nordström metrics and create realistic images of black holes.
 
 This program was created as part of a [master's thesis](https://github.com/user-attachments/files/15948451/default.pdf).
