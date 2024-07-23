@@ -138,6 +138,5 @@ The executable file will be located in the `dist` folder.
 * The program's source code is available in the `chernabog` folder.
 
 ### License:
-### License:
 
 MIT License
