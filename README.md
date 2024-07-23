@@ -7,6 +7,7 @@ ChernabogPy is a Python program designed to visualize gravitational lensing effe
 This program was created as part of a [master's thesis](https://github.com/user-attachments/files/15948451/default.pdf).
 
 ### Features:
+### Features:
 
 * Ray tracing considering the gravitational field of black holes:
     * Schwarzschild metric (non-rotating, uncharged black hole)
@@ -136,6 +137,7 @@ The executable file will be located in the `dist` folder.
 * Fine-tuning scene and ray tracing parameters might require some experimentation.
 * The program's source code is available in the `chernabog` folder.
 
+### License:
 ### License:
 
 MIT License
