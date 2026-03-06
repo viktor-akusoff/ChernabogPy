@@ -56,18 +56,23 @@ class SchwarzschildRayTrace(RayTraceStrategy):
         square_areal_velocity = torch.pow(
             torch.einsum('ijk,ijk->ij', points, velocity), 2
         )
-        points = points + velocity * eps * torch.unsqueeze(mask, dim=2)
+        mask_3d = torch.unsqueeze(mask, dim=2).to(velocity.dtype)
+        points = points + velocity * eps * mask_3d
         accel = (
             points *
             (
                 -abs(self.curvature) * square_areal_velocity /
                 torch.pow(
-                    torch.einsum('...i,...i', points, points),
+                    torch.clamp(
+                        torch.einsum('...i,...i', points, points),
+                        min=1e-8
+                    ),
                     2.5
                 )
-            )[:, :, None,]
+            )[:, :, None]
         )
-        velocity = u.m_norm(velocity + accel * eps)
+        new_velocity = u.m_norm(velocity + accel * eps)
+        velocity = new_velocity * mask_3d + velocity * (1 - mask_3d)
 
         return points, velocity
 
@@ -92,20 +97,21 @@ class ReissnerNordstromRayTrace(RayTraceStrategy):
         A = self.A
         e = self.e
 
-        r = torch.linalg.norm(points)
-        r2 = torch.einsum('...i,...i', points, points)
-        r3 = torch.pow(r2, 1.5)
+        # Compute per-pixel radial distance, clamp to avoid singularity
+        r = torch.clamp(torch.linalg.norm(points, dim=2), min=1e-8)
+        r2 = torch.pow(r, 2)
+        r3 = torch.pow(r, 3)
 
+        # Areal velocity computed from positions BEFORE the step
         square_areal_velocity = torch.pow(
             torch.einsum('ijk,ijk->ij', points, velocity), 2
         )
 
-        r_factor = 1 - 1 / r
+        # Lapse function (clamp to avoid division by zero at event horizon)
+        r_factor = torch.clamp(1 - 1 / r, min=1e-8)
 
-        square_areal_velocity = torch.pow(
-            torch.einsum('ijk,ijk->ij', points, velocity), 2
-        )
-        points = points + velocity * eps * torch.unsqueeze(mask, dim=2)
+        mask_3d = torch.unsqueeze(mask, dim=2).to(velocity.dtype)
+        points = points + velocity * eps * mask_3d
         c = (
             1.5 / r2
             - 2 * A / r3
@@ -118,9 +124,10 @@ class ReissnerNordstromRayTrace(RayTraceStrategy):
             (
                 -c * square_areal_velocity /
                 r3
-            )[:, :, None,]
+            )[:, :, None]
         )
-        velocity = u.m_norm(velocity + accel * eps)
+        new_velocity = u.m_norm(velocity + accel * eps)
+        velocity = new_velocity * mask_3d + velocity * (1 - mask_3d)
 
         return points, velocity
 
@@ -180,7 +187,7 @@ class RayTracer:
             bar.close()
 
     def calc_image(self):
-        return self.scene.get_colors(self.points).cpu().numpy()
+        return self.scene.get_colors(self.points, eps=self.eps).cpu().numpy()
 
     def view_3d_rays_hits(
         self,

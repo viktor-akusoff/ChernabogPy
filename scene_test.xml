@@ -1,0 +1,45 @@
+<scene>
+    <camera>
+        <position x="-8" y="0" z="0.5"/>
+        <look_at x="0" y="0" z="0"/>
+        <resolution width="320" height="240"/>
+        <distance_to_screen>1</distance_to_screen>
+        <fov>1.0472</fov>
+    </camera>
+    <objects>
+        <!-- Black hole -->
+        <object type="sphere">
+            <position x="0" y="0" z="0"/>
+            <radius>0.5</radius>
+            <texture type="color" r="0" g="0" b="0"/>
+        </object>
+        <!-- Accretion disk -->
+        <object type="flat_ring">
+            <position x="0" y="0" z="0"/>
+            <inner_radius>0.7</inner_radius>
+            <outer_radius>5.0</outer_radius>
+            <norm_vector x="0" y="0" z="1"/>
+            <texture type="checkers">
+                <color1 r="1.0" g="0.6" b="0.0"/>
+                <color2 r="0.8" g="0.2" b="0.0"/>
+                <length>15</length>
+            </texture>
+        </object>
+        <!-- Background sky sphere (inverted) -->
+        <object type="sphere">
+            <position x="0" y="0" z="0"/>
+            <radius>25</radius>
+            <inverse>true</inverse>
+            <texture type="checkers">
+                <color1 r="0.05" g="0.1" b="0.5"/>
+                <color2 r="0.8" g="0.9" b="1.0"/>
+                <length>20</length>
+            </texture>
+        </object>
+    </objects>
+    <raytracer>
+        <type>SchwarzschildRayTrace</type>
+        <curvature>5</curvature>
+        <eps>5e-3</eps>
+    </raytracer>
+</scene>

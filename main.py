@@ -3,6 +3,7 @@ import numpy as np
 import asyncio
 import xml.etree.ElementTree as ET
 import sys
+import argparse
 from chernabog.misc import TensorFabric
 from chernabog.entities import Sphere, FlatRing, Scene, Camera, DecoratedPair
 from chernabog.textures import ColorTexture, CheckersTexture, ImageTexture
@@ -67,10 +68,10 @@ def load_object_from_xml(object_node, t):
     return DecoratedPair(entity, texture)
 
 
-def load_scene_from_xml(filename="scene.xml"):
+def load_scene_from_xml(filename="scene.xml", device: str | None = None):
     tree = ET.parse(filename)
     root = tree.getroot()
-    t = TensorFabric(torch.float64)
+    t = TensorFabric(torch.float64, device=device)
 
     # Camera
     camera_node = root.find('camera')
@@ -126,16 +127,28 @@ async def main(raytracer: RayTracer):
         tg.create_task(raytracer.async_show_progress())
 
 if __name__ == "__main__":
-    input_xml = "scene.xml"
-    output_png = "output.png"
+    parser = argparse.ArgumentParser(description="ChernabogPy black hole ray tracer")
+    parser.add_argument("input_xml", nargs="?", default="scene.xml",
+                        help="Path to scene XML file (default: scene.xml)")
+    parser.add_argument("output_png", nargs="?", default="output.png",
+                        help="Path to output PNG file (default: output.png)")
+    parser.add_argument("--device", choices=["auto", "cuda", "cpu"], default="auto",
+                        help="Compute device: auto (default), cuda, or cpu")
+    args = parser.parse_args()
 
-    if len(sys.argv) > 1: 
-        input_xml = sys.argv[1]
-    if len(sys.argv) > 2:
-        output_png = sys.argv[2]
+    device: str | None = None
+    if args.device == "cuda":
+        if not torch.cuda.is_available():
+            print("Warning: CUDA requested but not available, falling back to CPU.")
+            device = "cpu"
+        else:
+            device = "cuda"
+    elif args.device == "cpu":
+        device = "cpu"
+    # "auto" → device=None → TensorFabric auto-detects
 
-    raytracer = load_scene_from_xml(filename=input_xml) 
+    raytracer = load_scene_from_xml(filename=args.input_xml, device=device)
     asyncio.run(main(raytracer))
     img_data = raytracer.calc_image()
-    plt.imsave(output_png, img_data)
-    plt.show() 
+    plt.imsave(args.output_png, img_data)
+    plt.show()

@@ -70,9 +70,12 @@ class TensorFabric:
     selected device.
     """
 
-    def __init__(self, dtype: torch.dtype) -> None:
+    def __init__(self, dtype: torch.dtype, device: str | None = None) -> None:
         self.dtype = dtype
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        if device is not None:
+            self.device = device
+        else:
+            self.device = "cuda" if torch.cuda.is_available() else "cpu"
 
     def __call__(self, t: List[float] | npt.NDArray) -> torch.Tensor:
         """Converts List or NDarray to torch.Tensor."""

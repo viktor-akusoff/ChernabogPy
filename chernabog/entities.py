@@ -278,8 +278,8 @@ class Sphere(BaseEntity):
         p_x = p_diff[:, :, 0]
         p_y = p_diff[:, :, 1]
         p_z = p_diff[:, :, 2]
-        p_r = torch.linalg.norm(p_diff, dim=2)
-        p_theta = torch.acos(p_z / p_r)
+        p_r = torch.clamp(torch.linalg.norm(p_diff, dim=2), min=1e-8)
+        p_theta = torch.acos(torch.clamp(p_z / p_r, -1.0, 1.0))
         p_phi = torch.arctan2(p_x, p_y)
         phi_a_bool = p_phi < 0
         phi_b_bool = p_phi >= 0

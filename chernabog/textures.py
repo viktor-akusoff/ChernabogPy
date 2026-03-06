@@ -88,48 +88,30 @@ class ImageTexture(BaseTexture):
         address
     ):
         super().__init__()
-        self.image = im.open(address)
         image = cv2.imread(address)
         image = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         transform = transforms.Compose([
             transforms.ToTensor()
         ])
-        self.image = transform(image)
-        _, self.height, self.width = self.image.shape
-        r = torch.unsqueeze(self.image[0], dim=2)
-        g = torch.unsqueeze(self.image[1], dim=2)
-        b = torch.unsqueeze(self.image[2], dim=2)
-
+        img_tensor = transform(image)
+        _, self.height, self.width = img_tensor.shape
+        r = torch.unsqueeze(img_tensor[0], dim=2)
+        g = torch.unsqueeze(img_tensor[1], dim=2)
+        b = torch.unsqueeze(img_tensor[2], dim=2)
+        # Store on CPU; moved to target device on first use
         self.image = torch.cat((r, g, b), dim=2)
 
     def get_colors(self, points: torch.Tensor) -> torch.Tensor:
-        s_u = points[:, :, 0] / torch.max(points)
-        s_v = points[:, :, 1] / torch.max(points)
+        device = points.device
+        image = self.image.to(device=device, dtype=points.dtype)
 
-        i = torch.unsqueeze(torch.round((self.height - 1) * s_u), dim=2)
-        j = torch.unsqueeze(torch.round((self.width - 1) * s_v), dim=2)
+        # UV coords from uv_map are already in [0, 1]
+        s_u = torch.clamp(points[:, :, 0], 0.0, 1.0)
+        s_v = torch.clamp(points[:, :, 1], 0.0, 1.0)
 
-        ind = torch.cat((i, j), dim=2).cpu()
+        ih, iw, _ = image.shape
+        i = torch.round((ih - 1) * s_u).long() % ih
+        j = torch.round((iw - 1) * s_v).long() % iw
 
-        h, w, _ = ind.shape
-
-        ih, iw, _ = self.image.shape
-
-        ind[ind < -ih] = torch.abs(ind[ind < -ih] + ih)
-        
-        colors = torch.zeros(h, w, 3)
-
-        colors[:, :, 0] = self.image[
-            ind[:, :, 0].long(), ind[:, :, 1].long(),
-            0
-        ]
-        colors[:, :, 1] = self.image[
-            ind[:, :, 0].long(), ind[:, :, 1].long(),
-            1
-        ]
-        colors[:, :, 2] = self.image[
-            ind[:, :, 0].long(), ind[:, :, 1].long(),
-            2
-        ]
-
-        return colors.cuda()
+        colors = image[i, j, :]
+        return colors
