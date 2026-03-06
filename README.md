@@ -9,7 +9,6 @@ ChernabogPy is a Python program designed to visualize gravitational lensing effe
 This program was created as part of a [master's thesis](https://github.com/user-attachments/files/15948451/default.pdf).
 
 ### Features:
-### Features:
 
 * Ray tracing considering the gravitational field of black holes:
     * Schwarzschild metric (non-rotating, uncharged black hole)
@@ -23,21 +22,39 @@ This program was created as part of a [master's thesis](https://github.com/user-
 * Visualization of ray trajectories in 3D
 * Saving the rendered image
 * Loading the scene from an XML file
+* **GPU/CPU rendering** — select compute device via `--device` flag
 
 ### Usage:
 
-ChernabogPy uses XML files to describe the scene. The program takes two arguments:
+ChernabogPy uses XML files to describe the scene. The program accepts the following arguments:
 
-* **Path to the XML file with the scene description:**
-* **Path to the PNG file where the image will be saved:**
-
-Usage example:
-
-```bash
-python main.py scene.xml output.png
+```
+python main.py [input.xml] [output.png] [--device auto|cuda|cpu]
 ```
 
-If the arguments are not specified, the program will use the default files `scene.xml` and `output.png`.
+| Argument | Default | Description |
+|---|---|---|
+| `input.xml` | `scene.xml` | Path to scene XML file |
+| `output.png` | `output.png` | Path to output PNG file |
+| `--device` | `auto` | Compute device: `auto` (detect GPU), `cuda` (force GPU), `cpu` (force CPU) |
+
+Usage examples:
+
+```bash
+# Auto-detect GPU (default)
+python main.py scene.xml output.png
+
+# Force GPU rendering
+python main.py scene.xml output.png --device cuda
+
+# Force CPU rendering (no GPU required)
+python main.py scene.xml output.png --device cpu
+
+# Use bundled test scene
+python main.py scene_test.xml output.png --device cuda
+```
+
+If arguments are not specified, the program will use the default files `scene.xml` and `output.png`.
 
 #### XML File Structure:
 
@@ -136,7 +153,9 @@ The executable file will be located in the `dist` folder.
 ### Notes:
 
 * For faster rendering, using a GPU is recommended. Ensure you have PyTorch installed with CUDA support.
+* Without a GPU, rendering a 1024×768 scene may take 15–30 minutes. Use `--device cpu` explicitly to avoid errors on machines without CUDA.
 * Fine-tuning scene and ray tracing parameters might require some experimentation.
+* A ready-to-use test scene with procedural checkerboard textures is included as `scene_test.xml`.
 * The program's source code is available in the `chernabog` folder.
 
 ### License:
